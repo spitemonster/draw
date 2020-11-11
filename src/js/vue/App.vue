@@ -1,11 +1,14 @@
 <template>
-	<section></section>
+	<section>
+		<img src="" alt="" id="mirror" />
+	</section>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Vector2 } from "../interfaces/vector";
+import { Color } from "../interfaces/color";
 
 @Component
 export default class App extends Vue {
@@ -17,6 +20,7 @@ export default class App extends Vue {
 	strokeStyle: string;
 	ctx: CanvasRenderingContext2D;
 	mousePosition: Vector2;
+	colors: Color[];
 
 	constructor() {
 		super();
@@ -24,13 +28,23 @@ export default class App extends Vue {
 		// create canvas and give it an id
 		this.canvas = document.createElement("canvas");
 		this.canvas.id = "canvas";
+
+		// setup defaults
 		this.drawing = false;
 		this.lineWidth = 5;
 		this.lineCap = "round";
 		this.lineJoin = "round";
-		this.strokeStyle = "#990000";
+		this.strokeStyle = "#000000";
 		this.ctx = this.canvas.getContext("2d");
 		this.mousePosition = { x: 0, y: 0 };
+
+		// set up colors
+		this.colors = [
+			{ name: "Red", code: "#990000" },
+			{ name: "Green", code: "#009900" },
+			{ name: "Blue", code: "#000099" },
+			{ name: "Black", code: "#000000" },
+		];
 	}
 
 	mounted(): void {
@@ -42,6 +56,9 @@ export default class App extends Vue {
 
 		// set up canvas event listeners
 		this.setupCanvas();
+
+		// create toolbar
+		this.createToolbar();
 	}
 
 	setMousePosition({ x, y }: Vector2): void {
@@ -113,6 +130,57 @@ export default class App extends Vue {
 	// on release
 	stopDrawing(): void {
 		this.drawing = false;
+	}
+
+	// create toolbar
+	createToolbar(): void {
+		let toolbar = document.createElement("div");
+		toolbar.classList.add("toolbar");
+
+		// create the clear button
+		let clearButton = document.createElement("button");
+		clearButton.innerText = "Clear";
+		clearButton.classList.add("clear");
+		clearButton.addEventListener("click", this.clearCanvas);
+		toolbar.appendChild(clearButton);
+
+		this.colors.forEach((c) => {
+			let colorButton = document.createElement("button");
+			colorButton.innerText = c.name;
+			colorButton.dataset.code = c.code;
+			colorButton.addEventListener("click", this.setColor);
+			toolbar.appendChild(colorButton);
+		});
+
+		// create save button
+		let saveButton = document.createElement("button");
+		saveButton.innerText = "Save";
+		saveButton.classList.add("save");
+		saveButton.addEventListener("click", this.saveCanvas);
+		toolbar.appendChild(saveButton);
+
+		this.$el.appendChild(toolbar);
+	}
+
+	// clears the canvas
+	clearCanvas(): void {
+		this.ctx.clearRect(
+			0,
+			0,
+			this.canvas.offsetWidth,
+			this.canvas.offsetHeight
+		);
+	}
+
+	// select different color
+	setColor(e): void {
+		this.ctx.strokeStyle = e.target.dataset.code;
+	}
+
+	// save image
+	saveCanvas(): void {
+		// this will do for now. opens the image in a new window/tab
+		window.open(this.canvas.toDataURL());
 	}
 }
 </script>
