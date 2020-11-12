@@ -21,6 +21,7 @@ export default class App extends Vue {
 	ctx: CanvasRenderingContext2D;
 	mousePosition: Vector2;
 	colors: Color[];
+	test: string;
 
 	constructor() {
 		super();
@@ -37,6 +38,8 @@ export default class App extends Vue {
 		this.strokeStyle = "#000000";
 		this.ctx = this.canvas.getContext("2d");
 		this.mousePosition = { x: 0, y: 0 };
+
+		this.test = null;
 
 		// set up colors
 		this.colors = [
@@ -59,6 +62,8 @@ export default class App extends Vue {
 
 		// create toolbar
 		this.createToolbar();
+
+		console.log("mounted");
 	}
 
 	setMousePosition({ x, y }: Vector2): void {
@@ -74,7 +79,7 @@ export default class App extends Vue {
 		return { x: outX, y: outY };
 	}
 
-	// set up context. done in a separate function so later on when/if we change colors or sizes we can just call this function instead of redrawing the whole thing
+	// set up context. done in a separate function so later on if we need to we can just call this function again instead of resetting the whole canvas
 	setupContext(): void {
 		// set the context canvas to be the same size as the canvas element
 		this.ctx.canvas.height = this.canvas.offsetHeight;
@@ -180,7 +185,28 @@ export default class App extends Vue {
 	// save image
 	saveCanvas(): void {
 		// this will do for now. opens the image in a new window/tab
-		window.open(this.canvas.toDataURL());
+		// window.open(this.canvas.toDataURL());
+
+		this.test = this.canvas.toDataURL();
+
+		this.clearCanvas();
+
+		let img = new Image();
+		img.src = this.test;
+
+		window.setTimeout(() => {
+			console.log("running");
+
+			this.ctx.drawImage(
+				img,
+				0,
+				0,
+				this.canvas.offsetWidth,
+				this.canvas.offsetHeight
+			);
+
+			// this.$el.appendChild(img);
+		}, 1000);
 	}
 }
 </script>
