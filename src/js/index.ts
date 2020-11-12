@@ -8,4 +8,7 @@ import App from './vue/App.vue';
 
 new Vue({
   render: (h: any) => h(App),
+  mounted: function () {
+    console.log('mounted inside the big boy');
+  }
 }).$mount('#app');
