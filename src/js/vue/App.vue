@@ -184,29 +184,35 @@ export default class App extends Vue {
 
 	// save image
 	saveCanvas(): void {
-		// this will do for now. opens the image in a new window/tab
-		// window.open(this.canvas.toDataURL());
+		let postBody = {
+			image: this.canvas.toDataURL(),
+		};
+		// set up image for redrawing the image to the canvas later
+		let img = new Image();
+		img.src = postBody.image;
 
-		this.test = this.canvas.toDataURL();
+		// package up the image-as-a-string into the form
 
 		this.clearCanvas();
 
-		let img = new Image();
-		img.src = this.test;
+		this.ctx.drawImage(
+			img,
+			0,
+			0,
+			this.canvas.offsetWidth,
+			this.canvas.offsetHeight
+		);
 
-		window.setTimeout(() => {
-			console.log("running");
-
-			this.ctx.drawImage(
-				img,
-				0,
-				0,
-				this.canvas.offsetWidth,
-				this.canvas.offsetHeight
-			);
-
-			// this.$el.appendChild(img);
-		}, 1000);
+		fetch("/image", {
+			method: "POST",
+			headers: {
+				// gotta add this or bodyparser won't read this
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(postBody),
+		}).then((res) => {
+			console.log(res);
+		});
 	}
 }
 </script>
